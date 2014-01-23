@@ -1593,7 +1593,8 @@ main(int argc, char **argv)
 	}
 #endif /* WIN32 */
 	do {
-		status = pcap_loop(pd, cnt, callback, pcap_userdata);
+	  printf("PIPPO\n");
+		status = pcap_loop_sample(pd, cnt, callback, pcap_userdata, 10);
 		if (WFileName == NULL) {
 			/*
 			 * We're printing packets.  Flush the printed output,
