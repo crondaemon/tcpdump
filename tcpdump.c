@@ -1582,8 +1582,8 @@ main(int argc, char **argv)
 	}
 #endif /* WIN32 */
 	do {
-	  printf("PIPPO\n");
 		status = pcap_loop_sample(pd, cnt, callback, pcap_userdata, 10);
+/*		status = pcap_loop(pd, cnt, callback, pcap_userdata);*/
 		if (WFileName == NULL) {
 			/*
 			 * We're printing packets.  Flush the printed output,
@@ -1660,6 +1660,7 @@ main(int argc, char **argv)
 static RETSIGTYPE
 cleanup(int signo _U_)
 {
+    printf("CLEANUP XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx\n");
 #ifdef USE_WIN32_MM_TIMER
 	if (timer_id)
 		timeKillEvent(timer_id);
@@ -1675,7 +1676,9 @@ cleanup(int signo _U_)
 	 * to do anything with standard I/O streams in a signal handler -
 	 * the ANSI C standard doesn't say it is).
 	 */
+	printf("BREAKLOP prima %p\n", pd->next);
 	pcap_breakloop(pd);
+	printf("BREAKLOP dopo %p\n", pd->next);
 #else
 	/*
 	 * We don't have "pcap_breakloop()"; this isn't safe, but
