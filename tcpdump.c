@@ -1687,9 +1687,9 @@ cleanup(int signo _U_)
 	 * to do anything with standard I/O streams in a signal handler -
 	 * the ANSI C standard doesn't say it is).
 	 */
-	printf("BREAKLOP prima %p\n", pd->next);
+	printf("BREAKLOP prima %p\n", pd);
 	pcap_breakloop(pd);
-	printf("BREAKLOP dopo %p\n", pd->next);
+	printf("BREAKLOP dopo %p\n", pd);
 #else
 	/*
 	 * We don't have "pcap_breakloop()"; this isn't safe, but
