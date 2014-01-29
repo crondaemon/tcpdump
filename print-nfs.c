@@ -994,14 +994,14 @@ xid_map_enter(const struct sunrpc_msg *rp, const u_char *bp)
 	xmep->xid = rp->rm_xid;
 	if (ip) {
 		xmep->ipver = 4;
-		memcpy(&xmep->client, &ip->ip_src, sizeof(ip->ip_src));
-		memcpy(&xmep->server, &ip->ip_dst, sizeof(ip->ip_dst));
+		UNALIGNED_MEMCPY(&xmep->client, &ip->ip_src, sizeof(ip->ip_src));
+		UNALIGNED_MEMCPY(&xmep->server, &ip->ip_dst, sizeof(ip->ip_dst));
 	}
 #ifdef INET6
 	else if (ip6) {
 		xmep->ipver = 6;
-		memcpy(&xmep->client, &ip6->ip6_src, sizeof(ip6->ip6_src));
-		memcpy(&xmep->server, &ip6->ip6_dst, sizeof(ip6->ip6_dst));
+		UNALIGNED_MEMCPY(&xmep->client, &ip6->ip6_src, sizeof(ip6->ip6_src));
+		UNALIGNED_MEMCPY(&xmep->server, &ip6->ip6_dst, sizeof(ip6->ip6_dst));
 	}
 #endif
 	xmep->proc = EXTRACT_32BITS(&rp->rm_call.cb_proc);
@@ -1035,18 +1035,18 @@ xid_map_find(const struct sunrpc_msg *rp, const u_char *bp, u_int32_t *proc,
 			goto nextitem;
 		switch (xmep->ipver) {
 		case 4:
-			if (memcmp(&ip->ip_src, &xmep->server,
+			if (UNALIGNED_MEMCMP(&ip->ip_src, &xmep->server,
 				   sizeof(ip->ip_src)) != 0 ||
-			    memcmp(&ip->ip_dst, &xmep->client,
+			    UNALIGNED_MEMCMP(&ip->ip_dst, &xmep->client,
 				   sizeof(ip->ip_dst)) != 0) {
 				cmp = 0;
 			}
 			break;
 #ifdef INET6
 		case 6:
-			if (memcmp(&ip6->ip6_src, &xmep->server,
+			if (UNALIGNED_MEMCMP(&ip6->ip6_src, &xmep->server,
 				   sizeof(ip6->ip6_src)) != 0 ||
-			    memcmp(&ip6->ip6_dst, &xmep->client,
+			    UNALIGNED_MEMCMP(&ip6->ip6_dst, &xmep->client,
 				   sizeof(ip6->ip6_dst)) != 0) {
 				cmp = 0;
 			}

@@ -270,6 +270,31 @@ extern char *copy_argv(netdissect_options *, char **);
 extern void safeputchar(int);
 extern void safeputs(const char *, int);
 
+#ifdef LBL_ALIGN
+/*
+ * The processor doesn't natively handle unaligned loads,
+ * and the compiler might "helpfully" optimize memcpy()
+ * and memcmp(), when handed pointers that would normally
+ * be properly aligned, into sequences that assume proper
+ * alignment.
+ *
+ * Do copies and compares of possibly-unaligned data by
+ * calling routines that wrap memcpy() and memcmp(), to
+ * prevent that optimization.
+ */
+extern void unaligned_memcpy(void *, const void *, size_t);
+extern int unaligned_memcmp(const void *, const void *, size_t);
+#define UNALIGNED_MEMCPY(p, q, l)	unaligned_memcpy((p), (q), (l))
+#define UNALIGNED_MEMCMP(p, q, l)	unaligned_memcmp((p), (q), (l))
+#else
+/*
+ * The procesor natively handles unaligned loads, so just use memcpy()
+ * and memcmp(), to enable those optimizations.
+ */
+#define UNALIGNED_MEMCPY(p, q, l)	memcpy((p), (q), (l))
+#define UNALIGNED_MEMCMP(p, q, l)	memcmp((p), (q), (l))
+#endif
+
 #define PLURAL_SUFFIX(n) \
 	(((n) != 1) ? "s" : "")
 
@@ -293,7 +318,7 @@ extern if_printer lookup_printer(int);
 
 extern void eap_print(netdissect_options *,const u_char *, u_int);
 extern int esp_print(netdissect_options *,
-		     register const u_char *bp, int len, register const u_char *bp2,
+		     const u_char *bp, const int length, const u_char *bp2,
 		     int *nhdr, int *padlen);
 extern void arp_print(netdissect_options *,const u_char *, u_int, u_int);
 extern void tipc_print(netdissect_options *, const u_char *, u_int, u_int);
@@ -309,7 +334,7 @@ extern void ip_print_inner(netdissect_options *ndo,
 			   const u_char *bp, u_int length, u_int nh,
 			   const u_char *bp2);
 extern void rrcp_print(netdissect_options *,const u_char *, u_int);
-extern void loopback_print(netdissect_options *, const u_char *, u_int);
+extern void loopback_print(netdissect_options *, const u_char *, const u_int);
 
 extern void ether_print(netdissect_options *,
                         const u_char *, u_int, u_int,

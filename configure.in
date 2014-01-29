@@ -221,17 +221,24 @@ yes)   AC_MSG_RESULT(yes)
        ;;
   esac ],
 
-  AC_TRY_RUN([ /* AF_INET6 available check */
+  AC_COMPILE_IFELSE(
+    [
+      AC_LANG_SOURCE(
+	[[/* AF_INET6 available check */
 #include <sys/types.h>
 #include <sys/socket.h>
-main()
+#include <netinet/in.h>
+#ifdef AF_INET6
+void
+foo(struct in6_addr *addr)
 {
- if (socket(AF_INET6, SOCK_STREAM, 0) < 0)
-   exit(1);
- else
-   exit(0);
+ memset(addr, 0, sizeof (struct in6_addr));
 }
-],
+#else
+#error "AF_INET6 not defined"
+#endif
+        ]])
+    ],
 [ AC_MSG_RESULT(yes)
   LOCALSRC="print-ip6.c print-ip6opts.c print-mobility.c print-ripng.c print-icmp6.c print-frag6.c print-rt6.c print-ospf6.c print-dhcp6.c print-babel.c $LOCALSRC"
   AC_DEFINE(INET6, 1, [Define if you enable IPv6 support])
@@ -525,13 +532,6 @@ dnl
 dnl Checks for NI_NAMEREQD
 AC_NI_NAMEREQD(ac_cv_namereqd)
 if test "$ac_cv_namereqd" = no; then
-	missing_includes=yes
-fi
-
-dnl
-dnl Checks for sockaddr_storage structure
-AC_STRUCT_SA_STORAGE(ac_cv_sa_storage)
-if test "$ac_cv_sa_storage" = no; then
 	missing_includes=yes
 fi
 
@@ -991,6 +991,7 @@ AC_CHECK_HEADERS(pcap/usb.h,,,[#include <tcpdump-stdinc.h>])
 CPPFLAGS="$savedcppflags"
 
 AC_PROG_RANLIB
+AC_CHECK_TOOL([AR], [ar])
 
 AC_LBL_DEVEL(V_CCOPT)
 
